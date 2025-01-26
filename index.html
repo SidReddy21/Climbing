@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>Climbing AI</title>
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico"/>
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.5.5/css/simple-line-icons.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css" />
+    <link href="css/styles.css" rel="stylesheet" />
+  </head>
+  <body id="page-top">
+    <!-- Navigation Bar-->
+    <a class="menu-toggle rounded" href="#"><i class="fas fa-bars"></i></a>
+    <nav id="sidebar-wrapper">
+      <ul class="sidebar-nav">
+        <li class="sidebar-brand"><a href="#page-top">Start Bootstrap</a></li>
+        <li class="sidebar-nav-item"><a href="#page-top">Home</a></li>
+        <li class="sidebar-nav-item"><a href="#about">How?</a></li>
+        <li class="sidebar-nav-item"><a href="#fileupload">Try it Out!</a></li>
+      </ul>
+    </nav>
+
+    <!-- Header-->
+    <header class="masthead d-flex align-items-center">
+      <div class="container px-4 px-lg-5 text-center d-flex flex-column align-items-center">
+        <div class="bg-dark bg-opacity-50 p-5 rounded">
+          <h1 class="mb-1 text-white">Climbing AI</h1>
+          <h3 class="mb-0 text-white"><em>The World's First AI Climbing Coach</em></h3>
+        </div>
+      </div>
+    </header>
+
+    <!-- About-->
+    <section class="content-section bg-dark" id="about">
+      <div class="container px-4 px-lg-5 text-center">
+        <div class="row gx-4 gx-lg-5 justify-content-center">
+          <div class="col-lg-10">
+            <h2 class="text-white fs-1">How?</h2>
+            <p class="text-white mx-8 fs-5">
+              Climbing AI leverages advanced computer vision algorithms to analyze a climber's body movements and positioning, generating comprehensive performance data in real-time. Coupling generative AI, we can make precise calculations regarding how you can optimize your body movements and positioning to climb even harder.
+            </p>
+            <a class="btn btn-info btn-xl" href="#fileupload">Try it Out!</a>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Try It Yourself -->
+    <section class="callout" id="fileupload">
+        <div class="container px-14 px-lg-5 text-center" style="padding-top: 5rem;">
+          <h2 class="mx-auto mb-4 text-nowrap">Start Improving Now!</h2>
+      
+          <!-- UPLOAD BUTTON -->
+          <label class="btn btn-primary btn-xl" for="videoUpload">Upload</label>
+          <input type="file" id="videoUpload" accept="video/*" style="display: none;" onchange="previewVideo(event)">
+          
+          <style>
+            html, body {
+              height: 100%;
+              margin: 0;
+            }
+            .video-container {
+              position: relative;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              width: 80%;
+              height: 80vh;
+              margin: 0 auto;
+            }
+            canvas {
+              max-width: 90%;
+              max-height: 90%;
+            }
+          </style>
+          
+          <div class="video-container">
+            <canvas id="outputCanvas"></canvas>
+            <video id="videoElement" style="display: none;"></video>
+          </div>
+          
+          <!-- Angles Display Section (Initially Hidden) -->
+          <section class="stats" id="angle-display" style="margin-top: 10px; display: none;">
+            <h2 class="text-white">Real-Time Angles</h2>
+            <div id="anglesDisplay" style="text-align: center; margin-top: 20px; color: white; font-size: 2em; margin-bottom: 200px; display: flex; flex-direction: column; align-items: center; gap: 20px;">
+              
+              <!-- Left Elbow and Right Elbow -->
+              <div class="angle-group" style="display: flex; justify-content: space-between; width: 350px; margin-bottom: 10px;">
+                <p>Left Elbow: <span id="leftSEW" style="display: inline-block; width: 50px; text-align: right;"></span>°</p>
+                <p>Right Elbow: <span id="rightSEW" style="display: inline-block; width: 50px; text-align: right;"></span>°</p>
+              </div>
+          
+              <!-- Left Hip and Right Hip -->
+              <div class="angle-group" style="display: flex; justify-content: space-between; width: 350px; margin-bottom: 10px;">
+                <p>Left Hip: <span id="leftSHK" style="display: inline-block; width: 50px; text-align: right;"></span>°</p>
+                <p>Right Hip: <span id="rightSHK" style="display: inline-block; width: 50px; text-align: right;"></span>°</p>
+              </div>
+          
+              <!-- Left Foot and Right Foot -->
+              <div class="angle-group" style="display: flex; justify-content: space-between; width: 350px; margin-bottom: 10px;">
+                <p>Left Foot: <span id="leftAHF" style="display: inline-block; width: 50px; text-align: right;"></span>°</p>
+                <p>Right Foot: <span id="rightAHF" style="display: inline-block; width: 50px; text-align: right;"></span>°</p>
+              </div>
+              
+            </div>
+          </section>                 
+          
+        </div>
+    </section>     
+
+
+    <div id="spacer" style="height: 1px;"></div>
+
+
+    <!-- Climbing Tips Section (Initially Hidden) -->
+
+<section class="content-section bg-dark" id="climbing-tips" style="display: none;">
+  <div id="spacer" style="height: 600px;"></div>
+  <div class="container px-4 px-lg-5 text-center">
+    <h2 class="text-white fs-1">Climbing Tips</h2>
+    <p class="text-white mx-8 fs-5">
+      Here’s some advice to help you improve your climbing technique! Check out the feedback about straightening your elbows.
+    </p>
+
+    <!-- Textbox for displaying the advice -->
+    <textarea id="adviceText" rows="10" cols="50" readonly style="margin-bottom: 20px; width: 100%; font-size: 16px; padding: 10px; border-radius: 8px;">
+      
+After reviewing your climbing video, it’s clear that your arms are staying too bent, which tires your muscles quickly. To improve, focus on straightening your elbows whenever possible, especially on vertical or slightly overhung terrain. Straight arms transfer the load to your skeletal structure, conserving energy for tougher moves. Practice consciously relaxing your grip and letting your arms extend fully when you’re on good holds or resting positions. Watch the video again and notice moments where your arms could have been straighter. With repetition, this adjustment will become second nature, making your climbing smoother and more efficient.
+    </textarea>
+  </div>
+</section>
+
+<script>
+  async function getClimbingAdvice() {
+    try {
+      const response = await fetch('/.netlify/functions/getClimbingAdvice', {
+        method: 'GET',
+      });
+
+      const data = await response.json();
+      document.getElementById('adviceText').value = data.advice;
+    } catch (error) {
+      console.error('Error fetching advice:', error);
+      alert('Sorry, we couldn\'t get the climbing tips.');
+    }
+  }
+
+  // Call the function to fetch advice when the page loads
+  window.onload = getClimbingAdvice;
+
+  const videoInput = document.getElementById('videoUpload');
+  const canvas = document.getElementById('outputCanvas');
+  const ctx = canvas.getContext('2d');
+  const updateAngleDisplay = (id, value) => {
+    document.getElementById(id).textContent = value.toFixed(2);
+  };
+
+  function previewVideo(event) {
+    const videoFile = event.target.files[0];
+    if (videoFile) {
+      canvas.style.display = 'block';
+      document.getElementById('angle-display').style.display = 'block';  // Show Angles section
+      document.getElementById('climbing-tips').style.display = 'block';  // Show Climbing Tips section
+
+      const video = document.createElement('video');
+      video.src = URL.createObjectURL(videoFile);
+      video.loop = false;
+      video.muted = true;
+
+      video.onloadeddata = async () => {
+        const detector = await poseDetection.createDetector(
+          poseDetection.SupportedModels.MoveNet,
+          { modelType: poseDetection.movenet.modelType.SINGLEPOSE_THUNDER }
+        );
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        const scaleX = canvas.width / video.videoWidth;
+        const scaleY = canvas.height / video.videoHeight;
+
+        const drawSkeleton = (keypoints, ctx) => {
+          const adjacentPairs = poseDetection.util.getAdjacentPairs(
+            poseDetection.SupportedModels.MoveNet
+          );
+
+          adjacentPairs.forEach(([i, j]) => {
+            const kp1 = keypoints[i];
+            const kp2 = keypoints[j];
+
+            if (kp1.score >= 0.7 && kp2.score >= 0.7) {
+              ctx.beginPath();
+              ctx.moveTo(kp1.x, kp1.y);
+              ctx.lineTo(kp2.x, kp2.y);
+              ctx.strokeStyle = "green";
+              ctx.lineWidth = 2;
+              ctx.stroke();
+            } else if (kp1.score > 0.5 && kp2.score > 0.5) {
+              const average = (kp1.score + kp2.score) / 2;
+              ctx.beginPath();
+              ctx.moveTo(kp1.x, kp1.y);
+              ctx.lineTo(kp2.x, kp2.y);
+              ctx.strokeStyle = `rgb(${765 - average * 1020}, ${average * 1020 - 510}, 0)`;
+              ctx.lineWidth = 2;
+              ctx.stroke();
+            }
+          });
+        };
+
+        const calculateAngle = (p1, p2, p3) => {
+          const angle = Math.atan2(p3.y - p2.y, p3.x - p2.x) - Math.atan2(p1.y - p2.y, p1.x - p2.x);
+          return Math.abs(angle * (180 / Math.PI));
+        };
+
+        const processFrame = async () => {
+          if (!video.paused && !video.ended) {
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const poses = await detector.estimatePoses(video);
+
+            poses.forEach((pose) => {
+              drawSkeleton(pose.keypoints, ctx)
+              pose.keypoints.forEach(({ x, y, score }) => {
+                if (score >= 0.7) {
+                  ctx.beginPath();
+                  ctx.arc(x * scaleX, y * scaleY, 3.8, 0, 2 * Math.PI);
+                  ctx.fillStyle = "green";
+                  ctx.fill();
+                }
+                else if (score > 0.5) {
+                  ctx.beginPath();
+                  ctx.arc(x * scaleX, y * scaleY, 3.8, 0, 2 * Math.PI);
+                  ctx.fillStyle = `rgb(${765 - score * 1020}, ${score * 1020 - 510}, 0)`;
+                  ctx.fill();
+                }
+              });
+
+              const angles = {
+                leftSEW: calculateAngle(pose.keypoints[5], pose.keypoints[6], pose.keypoints[7]),
+                rightSEW: calculateAngle(pose.keypoints[2], pose.keypoints[3], pose.keypoints[4]),
+                rightSHK: calculateAngle(pose.keypoints[2], pose.keypoints[3], pose.keypoints[4]),
+                leftSHK: calculateAngle(pose.keypoints[5], pose.keypoints[6], pose.keypoints[7]),
+                leftAHF: calculateAngle(pose.keypoints[9], pose.keypoints[10], pose.keypoints[11]),
+                rightAHF: calculateAngle(pose.keypoints[12], pose.keypoints[13], pose.keypoints[14]),
+              };
+
+              Object.entries(angles).forEach(([key, value]) => {
+                updateAngleDisplay(key, value);
+              });
+            });
+
+            requestAnimationFrame(processFrame);
+          }
+        };
+
+        video.play();
+        processFrame();
+      };
+      video.load();
+    }
+  }
+</script>
+<!-- Future Section for Video -->
+<section class="content-section bg-light" id="future">
+  <div class="container px-4 px-lg-5 text-center">
+    <h2 class="text-black fs-1">Future Applications</h2>
+    <p class="text-black mx-8 fs-5">
+      See how you can compare climbs much more effectively!
+    </p>
+
+    <!-- Video Player -->
+    <div class="video-container" style="width: 80%; height: 50vh; margin: 0 auto;">
+      <video id="futureVideo" controls style="width: 100%; height: 100%;">
+        <source src="assets/vid/example.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    </div>
+  </div>
+</section>
+
+    <!-- Footer-->
+    <footer class="footer text-center">
+      <div class="container px-4 px-lg-5">
+        <ul class="list-inline mb-5">
+          <li class="list-inline-item">
+            <a class="social-link rounded-circle text-white mr-3" href="#!"><i class="icon-social-facebook"></i></a>
+          </li>
+          <li class="list-inline-item">
+            <a class="social-link rounded-circle text-white mr-3" href="#!"><i class="icon-social-twitter"></i></a>
+          </li>
+          <li class="list-inline-item">
+            <a class="social-link rounded-circle text-white" href="#!"><i class="icon-social-github"></i></a>
+          </li>
+        </ul>
+        <!-- <p class="text-muted small mb-0">Copyright &copy; Your Website 2023</p> -->
+      </div>
+    </footer>
+</body>
+</html>
